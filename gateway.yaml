@@ -1,0 +1,35 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: webhook-gateway
+  namespace: argo
+spec:
+  selector:
+    istio: ingressgateway 
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "af38e59d5fa94494ebc830a530ebfbb5-1920898411.eu-central-1.elb.amazonaws.com"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: webhook-vs
+  namespace: argo
+spec:
+  hosts:
+  - "af38e59d5fa94494ebc830a530ebfbb5-1920898411.eu-central-1.elb.amazonaws.com"
+  gateways:
+  - webhook-gateway
+  http:
+  - match:
+    - uri:
+        exact: /test
+    route:
+    - destination:
+        host: webhook-eventsource-svc
+        port:
+          number: 12000
